@@ -15,8 +15,8 @@
 
         <Flume name="eventLogger" compress="true" type="avro" ignoreExceptions="true">
             <Agent host="node22" port="44444"/>
-            <RFC5424Layout enterpriseNumber="18060" includeMDC="true" appName="MyApp"/>
-            <PatternLayout pattern="%m%n"/>
+<!--            <RFC5424Layout enterpriseNumber="18060" includeMDC="true" appName="MyApp"/>-->
+            <PatternLayout pattern="%m%n" />
         </Flume>
 
     </appenders>

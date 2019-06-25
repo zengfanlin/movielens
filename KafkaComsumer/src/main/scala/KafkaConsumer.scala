@@ -1,15 +1,12 @@
-import org.apache.spark.streaming.{Duration, Seconds, StreamingContext}
-import org.apache.spark.{SparkConf, SparkContext}
+import kafka.serializer.StringDecoder
+import org.apache.spark.streaming.kafka010.KafkaUtils
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
-import org.apache.spark.streaming.dstream.InputDStream
-import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.spark.streaming.kafka010._
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
+
 
 object KafkaConsumer {
 
@@ -19,19 +16,10 @@ object KafkaConsumer {
   )
 
   def main(args: Array[String]): Unit = {
-    var sparkConf: SparkConf = new SparkConf()
-      .setAppName("SparkStreamingKafka_Receiver")
-      .setMaster(config("spark.cores"))
-      .set("spark.streaming.receiver.writeAheadLog.enable", "true")
-
-    //创建Spark的对象
-    val spark = SparkSession.builder().config(sparkConf).getOrCreate()
-    val sc = spark.sparkContext
-    val ssc = new StreamingContext(sc, Seconds(1))
-    ssc.checkpoint("./Kafka_Receiver")
-
-    import spark.implicits._
-    //创建到Kafka的连接
+    Streaminglogs.setStreamingLogLevels()
+    val conf = new SparkConf().setMaster("local[*]").setAppName("NetworkWordCount")
+    val streamingContext = new StreamingContext(conf, Seconds(3))
+    streamingContext.checkpoint("./Kafka_Receiver")
     val kafkaParams = Map[String, Object](
       "bootstrap.servers" -> "node22:9092",
       "key.deserializer" -> classOf[StringDeserializer],
@@ -41,30 +29,20 @@ object KafkaConsumer {
       "enable.auto.commit" -> (false: java.lang.Boolean)
     )
 
-    val topics = Array("movielens")
-    val kafkaStream = KafkaUtils.createDirectStream[String, String](
-      ssc,
+    val topics = Array("movielens").toSet
+    val stream = KafkaUtils.createDirectStream[String, String](
+      streamingContext,
       PreferConsistent,
       Subscribe[String, String](topics, kafkaParams)
     )
-
-    val ratingStream = kafkaStream.map(record => (record.key, record.value))
-    ratingStream.foreachRDD { rdd =>
-      rdd.map { case (key, value) =>
-        println(">>>>>>>>>>>>>>>>")
-        println(value)
-      }.count()
-
-      // UID|MID|SCORE|TIMESTAMP
-      // 产生评分流
-      //    val ratingStream = kafkaStream.map { case msg =>
-      //      var attr = msg.value().split("\\|")
-      //      (attr(0).toInt, attr(1).toInt, attr(2).toDouble, attr(3).toInt)
-      //    }
-      //
-
-    }
-    ssc.start()
-    ssc.awaitTermination()
+    var ss = stream.map(record => (record.key, record.value))
+    ss.foreachRDD(rdd => {
+      rdd.foreach(line => {
+        println(">>>>>>>>>>>>>>>>>>")
+        println("key=" + line._1 + "  value=" + line._2)
+      })
+    })
+    streamingContext.start() //spark stream系统启动
+    streamingContext.awaitTermination() //
   }
 }

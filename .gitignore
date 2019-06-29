@@ -33,3 +33,4 @@ Thumbs.db
 .springBeans
 metastore_db/
 spark-warehouse
+/Kafka_Receiver

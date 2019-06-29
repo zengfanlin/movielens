@@ -1,3 +1,6 @@
+import java.text.SimpleDateFormat
+import java.util.Date
+
 import kafka.serializer.StringDecoder
 import org.apache.spark.streaming.kafka010.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -38,11 +41,17 @@ object KafkaConsumer {
     var ss = stream.map(record => (record.key, record.value))
     ss.foreachRDD(rdd => {
       rdd.foreach(line => {
-        println(">>>>>>>>>>>>>>>>>>")
         println("key=" + line._1 + "  value=" + line._2)
+
       })
     })
     streamingContext.start() //spark stream系统启动
     streamingContext.awaitTermination() //
+  }
+  def NowDate(): String = {
+    val now: Date = new Date()
+    val dateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    val date = dateFormat.format(now)
+    date
   }
 }

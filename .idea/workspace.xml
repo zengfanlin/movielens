@@ -2,29 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="683a0e55-777a-4e4e-ad61-b7b03df1fee7" name="Default Changelist" comment="测试成功，但是日志还有乱码">
-      <change afterPath="$PROJECT_DIR$/LogWriter/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LogWriter/src/main/java/com/example/SnowFlake.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LogWriter/src/main/resources/log4j.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/LogProducter.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/src/main/java/com/example/LogReader.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/src/main/resources/log4j2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/LogProducter-1.5.19.RELEASE.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/LogProducter-1.5.19.RELEASE.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/classes/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/classes/com/example/LogReader.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/classes/log4j2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/LogProducter/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -56,8 +35,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="339">
-              <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
+            <state relative-caret-position="399">
+              <caret line="21" selection-start-line="21" selection-end-line="21" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -69,7 +48,7 @@
         <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="505">
-              <caret line="56" column="1" lean-forward="true" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
+              <caret line="56" column="1" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
               <folding>
                 <element signature="e#0#33#0" expanded="true" />
               </folding>
@@ -80,8 +59,12 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/SnowFlake.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="38">
-              <caret line="2" column="22" selection-start-line="2" selection-start-column="22" selection-end-line="2" selection-end-column="22" />
+            <state relative-caret-position="-1204">
+              <caret line="15" column="7" lean-forward="true" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
+              <folding>
+                <element signature="e#2717#2718#0" expanded="true" />
+                <element signature="e#2766#2767#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -122,9 +105,10 @@
         <option value="$PROJECT_DIR$/LogProducter/src/main/java/com/example/LogReader.java" />
         <option value="$PROJECT_DIR$/LogWriter/pom.xml" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" />
         <option value="$PROJECT_DIR$/LogWriter/src/main/resources/log4j.properties" />
         <option value="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" />
+        <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/SnowFlake.java" />
+        <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" />
       </list>
     </option>
   </component>
@@ -308,7 +292,7 @@
       <workItem from="1561554920414" duration="5271000" />
       <workItem from="1561640775969" duration="8437000" />
       <workItem from="1561735837079" duration="698000" />
-      <workItem from="1561780002836" duration="3862000" />
+      <workItem from="1561780002836" duration="4552000" />
     </task>
     <task id="LOCAL-00001" summary="测试成功，但是日志还有乱码">
       <created>1561468949775</created>
@@ -321,7 +305,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="64483000" />
+    <option name="totallyTimeSpent" value="65173000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1064" extended-state="6" />
@@ -564,30 +548,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="339">
-          <caret line="19" column="18" selection-start-line="19" selection-start-column="18" selection-end-line="19" selection-end-column="18" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="505">
-          <caret line="56" column="1" lean-forward="true" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
+          <caret line="56" column="1" selection-start-line="56" selection-start-column="1" selection-end-line="56" selection-end-column="1" />
           <folding>
             <element signature="e#0#33#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="399">
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/SnowFlake.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="22" selection-start-line="2" selection-start-column="22" selection-end-line="2" selection-end-column="22" />
+        <state relative-caret-position="-1204">
+          <caret line="15" column="7" lean-forward="true" selection-start-line="15" selection-start-column="7" selection-end-line="15" selection-end-column="7" />
+          <folding>
+            <element signature="e#2717#2718#0" expanded="true" />
+            <element signature="e#2766#2767#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

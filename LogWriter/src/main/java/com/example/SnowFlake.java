@@ -39,6 +39,11 @@ public class SnowFlake {
     private long sequence = 0L; //序列号
     private long lastStmp = -1L;//上一次时间戳
 
+    /**
+     * 初始化
+     * @param datacenterId 数据中心
+     * @param machineId 机器标识
+     */
     public SnowFlake(long datacenterId, long machineId) {
         if (datacenterId > MAX_DATACENTER_NUM || datacenterId < 0) {
             throw new IllegalArgumentException("datacenterId can't be greater than MAX_DATACENTER_NUM or less than 0");
@@ -96,7 +101,7 @@ public class SnowFlake {
     public static void main(String[] args) {
         SnowFlake snowFlake = new SnowFlake(2, 3);
 
-        for (int i = 0; i < (1 << 12); i++) {
+        for (int i = 0; i < 10; i++) {
             System.out.println(snowFlake.nextId());
         }
 

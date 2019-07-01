@@ -1,8 +1,7 @@
 import java.text.SimpleDateFormat
-import java.util.Date
-
+import java.util
 import kafka.serializer.StringDecoder
-import org.apache.spark.streaming.kafka010.KafkaUtils
+import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.spark.SparkConf
@@ -23,12 +22,13 @@ object KafkaConsumer {
     val conf = new SparkConf().setMaster("local[*]").setAppName("NetworkWordCount")
     val streamingContext = new StreamingContext(conf, Seconds(3))
     streamingContext.checkpoint("./Kafka_Receiver")
+    var zkHost = "node22,node21,node23"
     val kafkaParams = Map[String, Object](
       "bootstrap.servers" -> "node22:9092",
       "key.deserializer" -> classOf[StringDeserializer],
       "value.deserializer" -> classOf[StringDeserializer],
       "group.id" -> "use_a_separate_group_id_for_each_stream",
-      "auto.offset.reset" -> "latest",
+      //      "auto.offset.reset" -> "latest",
       "enable.auto.commit" -> (false: java.lang.Boolean)
     )
 
@@ -38,20 +38,32 @@ object KafkaConsumer {
       PreferConsistent,
       Subscribe[String, String](topics, kafkaParams)
     )
-    var ss = stream.map(record => (record.key, record.value))
-    ss.foreachRDD(rdd => {
-      rdd.foreach(line => {
-        println("key=" + line._1 + "  value=" + line._2)
+    var offsetRanges: Array[OffsetRange] = Array.empty[OffsetRange]
+    //var ss = stream.map(record => (record.key, record.value))
+    val tableName = "movielens:udata"
+    val cf1 = "cf1"
+    stream.foreachRDD(rdd => {
 
+      val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+      rdd.foreachPartition(partitionRecords => {
+        val hbase: HbaseUtils = HbaseUtils.getInstance
+
+        partitionRecords.foreach(line => {
+          //打印
+          println(line.partition() + ":" + line.offset() + ">>>" + line.value())
+          val values = line.value().split("\t")
+          hbase.putData(tableName,values(0),cf1,"userid",values(1))
+          hbase.putData(tableName,values(0),cf1,"itemid",values(2))
+          hbase.putData(tableName,values(0),cf1,"rating",values(3))
+          hbase.putData(tableName,values(0),cf1,"timestamp",values(4))
+        })
       })
+
+      //手动提交offset，保存到kafka
+      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
     })
     streamingContext.start() //spark stream系统启动
     streamingContext.awaitTermination() //
-  }
-  def NowDate(): String = {
-    val now: Date = new Date()
-    val dateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    val date = dateFormat.format(now)
-    date
+    HbaseUtils.close()
   }
 }

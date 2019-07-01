@@ -42,22 +42,36 @@ object KafkaConsumer {
     //var ss = stream.map(record => (record.key, record.value))
     val tableName = "movielens:udata"
     val cf1 = "cf1"
+    val columns = Array("userid", "itemid", "rating", "timestamp")
     stream.foreachRDD(rdd => {
 
       val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd.foreachPartition(partitionRecords => {
-        val hbase: HbaseUtils = HbaseUtils.getInstance
-
+        HBaseUtils1x.init()
         partitionRecords.foreach(line => {
-          //打印
-          println(line.partition() + ":" + line.offset() + ">>>" + line.value())
           val values = line.value().split("\t")
-          hbase.putData(tableName,values(0),cf1,"userid",values(1))
-          hbase.putData(tableName,values(0),cf1,"itemid",values(2))
-          hbase.putData(tableName,values(0),cf1,"rating",values(3))
-          hbase.putData(tableName,values(0),cf1,"timestamp",values(4))
+          val cols = Array(values(1), values(2), values(3), values(4))
+          HBaseUtils1x.insertData(tableName, HBaseUtils1x.getPutAction(values(0), cf1, columns, cols))
+
         })
+        HBaseUtils1x.closeConnection()
       })
+
+
+
+      //      rdd.foreachPartition(partitionRecords => {
+      //        val hbase: HbaseUtils = HbaseUtils.getInstance
+      //
+      //        partitionRecords.foreach(line => {
+      //          //打印
+      //          println(line.partition() + ":" + line.offset() + ">>>" + line.value())
+      //          val values = line.value().split("\t")
+      //          hbase.putData(tableName,values(0),cf1,"userid",values(1))
+      //          hbase.putData(tableName,values(0),cf1,"itemid",values(2))
+      //          hbase.putData(tableName,values(0),cf1,"rating",values(3))
+      //          hbase.putData(tableName,values(0),cf1,"timestamp",values(4))
+      //        })
+      //      })
 
       //手动提交offset，保存到kafka
       stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)

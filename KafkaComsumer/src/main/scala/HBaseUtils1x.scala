@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory
   * @Modified By:
   */
 object HBaseUtils1x {
-  private val LOGGER = LoggerFactory.getLogger(this.getClass)
+
   private var connection: Connection = null
   private var conf: Configuration = null
   val ZOOKEEPER_SERVER_NODE = "node21,node22,node23"
@@ -93,8 +93,10 @@ object HBaseUtils1x {
 
 
   def closeConnection(): Unit = {
+    if (connection != null) {
+      connection.close()
+    }
 
-    connection.close()
 
   }
 
@@ -147,7 +149,7 @@ object HBaseUtils1x {
 
         for (i <- 0 until e.getNumExceptions) {
 
-          LOGGER.info("写入put失败:" + e.getRow(i))
+          println(e)
 
         }
 

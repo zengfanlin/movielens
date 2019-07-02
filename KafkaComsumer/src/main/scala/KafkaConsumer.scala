@@ -1,6 +1,8 @@
-import java.text.SimpleDateFormat
-import java.util
-import kafka.serializer.StringDecoder
+
+import org.apache.hadoop.hbase.client.{Put, Result}
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.mapreduce.Job
 import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.kafka.common.serialization.StringDeserializer
@@ -9,6 +11,17 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 
+import org.apache.hadoop.hbase.client.{Put, Result}
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.mapreduce.Job
+import org.apache.spark.SparkConf
+import org.apache.hadoop.hbase.mapreduce.TableOutputFormat
+import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import scala.collection.mutable.ArrayBuffer
+
 
 object KafkaConsumer {
 
@@ -16,12 +29,18 @@ object KafkaConsumer {
     "spark.cores" -> "local[*]",
     "kafka.topic" -> "movielens"
   )
+  val tableName = "movielens:udata"
+  val cf1 = "cf1"
+  val columns = Array("userid", "itemid", "rating", "timestamp")
 
   def main(args: Array[String]): Unit = {
     Streaminglogs.setStreamingLogLevels()
     val conf = new SparkConf().setMaster("local[*]").setAppName("NetworkWordCount")
-    val streamingContext = new StreamingContext(conf, Seconds(3))
-    streamingContext.checkpoint("./Kafka_Receiver")
+    val scc = new StreamingContext(conf, Seconds(3))
+    val sc = scc.sparkContext
+
+
+    scc.checkpoint("./Kafka_Receiver")
     var zkHost = "node22,node21,node23"
     val kafkaParams = Map[String, Object](
       "bootstrap.servers" -> "node22:9092",
@@ -34,50 +53,40 @@ object KafkaConsumer {
 
     val topics = Array("movielens").toSet
     val stream = KafkaUtils.createDirectStream[String, String](
-      streamingContext,
+      scc,
       PreferConsistent,
       Subscribe[String, String](topics, kafkaParams)
     )
     var offsetRanges: Array[OffsetRange] = Array.empty[OffsetRange]
-    //var ss = stream.map(record => (record.key, record.value))
-    val tableName = "movielens:udata"
-    val cf1 = "cf1"
-    val columns = Array("userid", "itemid", "rating", "timestamp")
-    stream.foreachRDD(rdd => {
-
-      val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      rdd.foreachPartition(partitionRecords => {
-        HBaseUtils1x.init()
-        partitionRecords.foreach(line => {
-          val values = line.value().split("\t")
-          val cols = Array(values(1), values(2), values(3), values(4))
-          HBaseUtils1x.insertData(tableName, HBaseUtils1x.getPutAction(values(0), cf1, columns, cols))
-
-        })
-        HBaseUtils1x.closeConnection()
-      })
+   stream.foreachRDD(rdd=>{
+     val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+     rdd.foreachPartition(partitionRecords => {
 
 
+       partitionRecords.foreach(line => {
+         //打印
+         println(line.partition() + ":" + line.offset() + ">>>" + line.value())
+         val values = line.value().split("\t")
+         hbase.putData(tableName,values(0),cf1,"userid",values(1))
+         hbase.putData(tableName,values(0),cf1,"itemid",values(2))
+         hbase.putData(tableName,values(0),cf1,"rating",values(3))
+         hbase.putData(tableName,values(0),cf1,"timestamp",values(4))
+       })
+     })
+     //手动提交offset，保存到kafka
+     stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
+   })
+    scc.start() //spark stream系统启动
+    scc.awaitTermination() //
 
-      //      rdd.foreachPartition(partitionRecords => {
-      //        val hbase: HbaseUtils = HbaseUtils.getInstance
-      //
-      //        partitionRecords.foreach(line => {
-      //          //打印
-      //          println(line.partition() + ":" + line.offset() + ">>>" + line.value())
-      //          val values = line.value().split("\t")
-      //          hbase.putData(tableName,values(0),cf1,"userid",values(1))
-      //          hbase.putData(tableName,values(0),cf1,"itemid",values(2))
-      //          hbase.putData(tableName,values(0),cf1,"rating",values(3))
-      //          hbase.putData(tableName,values(0),cf1,"timestamp",values(4))
-      //        })
-      //      })
+  }
 
-      //手动提交offset，保存到kafka
-      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
-    })
-    streamingContext.start() //spark stream系统启动
-    streamingContext.awaitTermination() //
-    HbaseUtils.close()
+  def insert_hb(values: Array[String], onePut: Put): Unit = {
+
+    onePut.addColumn(Bytes.toBytes(cf1), Bytes.toBytes("userid"), Bytes.toBytes(values(1)))
+    onePut.addColumn(Bytes.toBytes(cf1), Bytes.toBytes("itemid"), Bytes.toBytes(values(2)))
+    onePut.addColumn(Bytes.toBytes(cf1), Bytes.toBytes("rating"), Bytes.toBytes(values(3)))
+    onePut.addColumn(Bytes.toBytes(cf1), Bytes.toBytes("timestamp"), Bytes.toBytes(values(4)))
   }
 }
+

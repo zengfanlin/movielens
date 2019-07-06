@@ -1,789 +1,419 @@
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.filter.FilterList;
+
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Connection;
+import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.ResultScanner;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.util.Bytes;
 
 /**
- * 使用方法：通过getInstance获得HbaseUtils实例对象，通过对象获得连接
+ * Hbase 操作工具类
+ *
+ * @author Logan
+ * @version 1.0.0
+ * @createDate 2019-05-03
  */
 public class HbaseUtils {
 
-    private static final HbaseUtils eg = new HbaseUtils();
-    private static Configuration configuration = null;
-    private static Connection connection = null;
-    private static Admin admin = null;
+    public static Configuration conf = new Configuration();
+    //    private static Connection conn = null;
+    private static ExecutorService pool = Executors.newFixedThreadPool(200);
 
-    /**
-     * 单例模式
-     */
-    private static HbaseUtils instance = null;
-
-    public static synchronized HbaseUtils getInstance() {
-        if (instance == null) {
-            instance = new HbaseUtils();
-        }
-        return instance;
-    }
-
-    private HbaseUtils() {
-        getConnection();
-        getAdmin();
-    }
-
-    public Connection GetConn() {
-        return connection;
-    }
-
-    public static Connection getConnection() {
-        try {
-            if (configuration == null) {
-                Properties prop = new Properties();
-                InputStream file = HbaseUtils.class.getClassLoader().getResourceAsStream("hbase_login_initial.properties");
-                prop.load(file);
-                String ZK_CONNECT_KEY = prop.getProperty("ZK_CONNECT_KEY");
-                String ZK_CONNECT_VALUE = prop.getProperty("ZK_CONNECT_VALUE");
-                configuration = HBaseConfiguration.create();
-                configuration.set(ZK_CONNECT_KEY, ZK_CONNECT_VALUE);
-            }
-            if (connection == null) {
-                connection = ConnectionFactory.createConnection(configuration);
-            } else return connection;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return connection;
-    }
-
-    // 获取管理员对象
-    public static Admin getAdmin() {
-        try {
-            admin = connection.getAdmin();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return admin;
-    }
-
-    // 查询所有表
-    public void getAllTables() throws Exception {
-        //获取列簇的描述信息
-        HTableDescriptor[] listTables = admin.listTables();
-        for (HTableDescriptor listTable : listTables) {
-            //转化为表名
-            String tbName = listTable.getNameAsString();
-            //获取列的描述信息
-            HColumnDescriptor[] columnFamilies = listTable.getColumnFamilies();
-            System.out.println("tableName:" + tbName);
-            for (HColumnDescriptor columnFamilie : columnFamilies) {
-                //获取列簇的名字
-                String columnFamilyName = columnFamilie.getNameAsString();
-                System.out.print("\t" + "columnFamilyName:" + columnFamilyName);
-            }
-            System.out.println();
-        }
-    }
-
-    public Table getTable(String tableName) throws Exception {
-        Table table;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            table = connection.getTable(name);
-        } else {
-            table = null;
-        }
-//        table = connection.getTable(name);
-        return table;
-    }
-
-    public Result getResult(String tableName, String rowKey) throws Exception {
-        Result result;
-        TableName name = TableName.valueOf(tableName);
-//        if(admin.tableExists(name)) {
-//            Table table = connection.getTable(name);
-//            Get get = new Get(rowKey.getBytes());
-//            result = table.get(get);
-//        }else {
-//            result = null;
+    static {
+        conf.set("hbase.zookeeper.property.clientPort", "2181");
+        conf.set("hbase.zookeeper.quorum", "node21,node22,node23");
+        conf.setLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, 120000);
+//        try {
+//            conn = ConnectionFactory.createConnection(conf);
+//        } catch (IOException e) {
+//            e.printStackTrace();
 //        }
-        Table table = connection.getTable(name);
-        Get get = new Get(rowKey.getBytes());
-        result = table.get(get);
-        return result;
     }
 
-
-    public void createTable(String tableName, String[] family) throws Exception {
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            System.out.println("table已经存在！");
-        } else {
-            //表的列簇示例
-            HTableDescriptor htd = new HTableDescriptor(name);
-            //向列簇中添加列的信息
-            for (String str : family) {
-                HColumnDescriptor hcd = new HColumnDescriptor(str);
-                hcd.setMaxVersions(1);
-                htd.addFamily(hcd);
-            }
-            //创建表
-            admin.createTable(htd);
-            //判断表是否创建成功
-            if (admin.tableExists(name)) {
-                System.out.println("table创建成功");
-            } else {
-                System.out.println("table创建失败");
-            }
-        }
-    }
-
-    public void createTable(HTableDescriptor htds) throws Exception {
-        //获得表的名字
-        String tbName = htds.getNameAsString();
-        admin.createTable(htds);
+    // ===============Common=====================================
+    public static Connection getHbaseConn() throws IOException {
+        Connection conn = ConnectionFactory.createConnection(conf);
+        System.out.println("connectting open:" + conn.hashCode());
+        return conn;
     }
 
     /**
-     * // 创建表，传参，表名和封装好的多个列簇
+     * 根据表名获取Table对象
      *
-     * @param tableName 表名
-     * @param htds      封装好的多个列簇
-     * @throws Exception
+     * @param name 表名，必要时可指定命名空间，比如：“default:user”
+     * @return Hbase Table 对象
+     * @throws IOException 有异常抛出，由调用者捕获处理
      */
-    public void createTable(String tableName, HTableDescriptor htds) throws Exception {
-
-        TableName name = TableName.valueOf(tableName);
-
-        if (admin.tableExists(name)) {
-            System.out.println("table已经存在！");
-        } else {
-            admin.createTable(htds);
-            boolean flag = admin.tableExists(name);
-            System.out.println(flag ? "创建成功" : "创建失败");
-        }
-
+    public static Table getTable(Connection connection, String name) throws IOException {
+        TableName tableName = TableName.valueOf(name);
+        return connection.getTable(tableName);
     }
 
+    // =============== Put =====================================
+
     /**
-     * // 查看表的列簇属性
+     * 根据rowKey生成一个Put对象
      *
-     * @param tableName 表名
-     * @throws Exception
+     * @param rowKey rowKey
+     * @return Put对象
      */
-    public void descTable(String tableName) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            //获取表中列簇的描述信息
-            HTableDescriptor tableDescriptor = admin.getTableDescriptor(name);
-            //获取列簇中列的信息
-            HColumnDescriptor[] columnFamilies = tableDescriptor.getColumnFamilies();
-            for (HColumnDescriptor columnFamily : columnFamilies) {
-                System.out.println(columnFamily);
-            }
-
-        } else {
-            System.out.println("table不存在");
-        }
-
+    public static Put createPut(String rowKey) {
+        return new Put(Bytes.toBytes(rowKey));
     }
 
     /**
-     * 判断表存在不存在
+     * 在Put对象上增加Cell
      *
-     * @param tableName
-     * @return
-     * @throws Exception
+     * @param put  Put对象
+     * @param cell cell对象
+     * @throws IOException 有异常抛出，由调用者捕获处理
      */
-    public boolean existTable(String tableName) throws Exception {
-        TableName name = TableName.valueOf(tableName);
-        return admin.tableExists(name);
+    public static void addCellOnPut(Put put, Cell cell) throws IOException {
+        put.add(cell);
     }
 
     /**
-     * disable表
+     * 在Put对象上增加值
      *
-     * @param tableName
-     * @throws Exception
+     * @param put       Put对象
+     * @param family    列簇
+     * @param qualifier 列
+     * @param value     字符串类型的值
      */
-    public void disableTable(String tableName) throws Exception {
-
-        TableName name = TableName.valueOf(tableName);
-
-        if (admin.tableExists(name)) {
-            if (admin.isTableEnabled(name)) {
-                admin.disableTable(name);
-            } else {
-                System.out.println("table不是活动状态");
-            }
-        } else {
-            System.out.println("table不存在");
-        }
-
+    public static void addValueOnPut(Put put, String family, String qualifier, String value) {
+        addValueOnPut(put, family, qualifier, Bytes.toBytes(value));
     }
 
     /**
-     * drop表
+     * 在Put对象上增加值
      *
-     * @param tableName
-     * @throws Exception
+     * @param put       Put对象
+     * @param family    列簇
+     * @param qualifier 列
+     * @param value     字节数组类型的值，可以是任意对象序列化而成
      */
-    public void dropTable(String tableName) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            //判断表是否处于可用状态
-            boolean tableEnabled = admin.isTableEnabled(name);
-
-            if (tableEnabled) {
-                //使表变成不可用状态
-                admin.disableTable(name);
-            }
-            //删除表
-            admin.deleteTable(name);
-            //判断表是否存在
-            if (admin.tableExists(name)) {
-                System.out.println("删除失败");
-            } else {
-                System.out.println("删除成功");
-            }
-
-        } else {
-            System.out.println("table不存在");
-        }
+    public static void addValueOnPut(Put put, String family, String qualifier, byte[] value) {
+        put.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier), value);
     }
 
     /**
-     * 修改表(增加
+     * 在Put对象上增加值
      *
-     * @param tableName
-     * @throws Exception
+     * @param put       Put对象
+     * @param family    列簇
+     * @param qualifier 列
+     * @param ts        Timestamp时间戳
+     * @param value     字符串类型的值
      */
-    public void modifyTable_add(String tableName, String[] addColumn) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            //判断表是否可用状态
-            boolean tableEnabled = admin.isTableEnabled(name);
-
-            if (tableEnabled) {
-                //使表变成不可用
-                admin.disableTable(name);
-            }
-            //根据表名得到表
-            HTableDescriptor tableDescriptor = admin.getTableDescriptor(name);
-            for (String add : addColumn) {
-                HColumnDescriptor addColumnDescriptor = new HColumnDescriptor(add);
-                tableDescriptor.addFamily(addColumnDescriptor);
-            }
-            //替换该表所有的列簇
-            admin.modifyTable(name, tableDescriptor);
-
-        } else {
-            System.out.println("table不存在");
-        }
+    public static void addValueOnPut(Put put, String family, String qualifier, long ts, String value) {
+        addValueOnPut(put, family, qualifier, ts, Bytes.toBytes(value));
     }
 
     /**
-     * 修改表(删除
+     * 在Put对象上增加值
      *
-     * @param tableName
-     * @throws Exception
+     * @param put       Put对象
+     * @param family    列簇
+     * @param qualifier 列
+     * @param ts        Timestamp时间戳
+     * @param value     字节数组类型的值，可以是任意对象序列化而成
      */
-    public void modifyTable_remove(String tableName, String[] removeColumn) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            //判断表是否可用状态
-            boolean tableEnabled = admin.isTableEnabled(name);
-
-            if (tableEnabled) {
-                //使表变成不可用
-                admin.disableTable(name);
-            }
-            //根据表名得到表
-            HTableDescriptor tableDescriptor = admin.getTableDescriptor(name);
-            for (String remove : removeColumn) {
-                HColumnDescriptor removeColumnDescriptor = new HColumnDescriptor(remove);
-                tableDescriptor.removeFamily(removeColumnDescriptor.getName());
-            }
-            //替换该表所有的列簇
-            admin.modifyTable(name, tableDescriptor);
-
-        } else {
-            System.out.println("table不存在");
-        }
+    public static void addValueOnPut(Put put, String family, String qualifier, long ts, byte[] value) {
+        put.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier), ts, value);
     }
 
     /**
-     * 修改表(增加和删除
+     * 按表名插入一个Put对象包含的数据
      *
-     * @param tableName
-     * @param addColumn
-     * @param removeColumn
-     * @throws Exception
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param put       要插入的数据对象
+     * @throws IOException 有异常抛出，由调用者捕获处理
      */
-    public void modifyTable(String tableName, String[] addColumn, String[] removeColumn) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //判断表是否存在
-        if (admin.tableExists(name)) {
-            //判断表是否可用状态
-            boolean tableEnabled = admin.isTableEnabled(name);
+    public static void put(Connection connection, String tableName, Put put) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
 
-            if (tableEnabled) {
-                //使表变成不可用
-                admin.disableTable(name);
-            }
-            //根据表名得到表
-            HTableDescriptor tableDescriptor = admin.getTableDescriptor(name);
-            //创建列簇结构对象，添加列
-            for (String add : addColumn) {
-                HColumnDescriptor addColumnDescriptor = new HColumnDescriptor(add);
-                tableDescriptor.addFamily(addColumnDescriptor);
-            }
-            //创建列簇结构对象，删除列
-            for (String remove : removeColumn) {
-                HColumnDescriptor removeColumnDescriptor = new HColumnDescriptor(remove);
-                tableDescriptor.removeFamily(removeColumnDescriptor.getName());
-            }
-
-            admin.modifyTable(name, tableDescriptor);
-
-
-        } else {
-            System.out.println("table不存在");
-        }
-
-    }
-
-    /**
-     * 添加已封装好的列
-     *
-     * @param tableName
-     * @param hcds
-     * @throws Exception
-     */
-    public void modifyTable(String tableName, HColumnDescriptor hcds) throws Exception {
-        //转化为表名
-        TableName name = TableName.valueOf(tableName);
-        //根据表名得到表
-        HTableDescriptor tableDescriptor = admin.getTableDescriptor(name);
-        //获取表中所有的列簇信息
-        HColumnDescriptor[] columnFamilies = tableDescriptor.getColumnFamilies();
-
-        boolean flag = false;
-        //判断参数中传入的列簇是否已经在表中存在
-        for (HColumnDescriptor columnFamily : columnFamilies) {
-            if (columnFamily.equals(hcds)) {
-                flag = true;
-            }
-        }
-        //存在提示，不存在直接添加该列簇信息
-        if (flag) {
-            System.out.println("该列簇已经存在");
-        } else {
-            tableDescriptor.addFamily(hcds);
-            admin.modifyTable(name, tableDescriptor);
-        }
-
-    }
-
-    /**
-     * 添加数据的定义前提
-     *
-     * @param familyName
-     * @param name
-     * @throws IOException
-     */
-    private void putData_Temp(String familyName, TableName name) throws IOException {
-        if (admin.tableExists(name)) {
-        } else {
-            //根据表明创建表结构
-            HTableDescriptor tableDescriptor = new HTableDescriptor(name);
-            //定义列簇的名字
-            HColumnDescriptor columnFamilyName = new HColumnDescriptor(familyName);
-            tableDescriptor.addFamily(columnFamilyName);
-            admin.createTable(tableDescriptor);
-        }
-    }
-
-
-    /**
-     * 添加数据
-     * tableName:    表明
-     * rowKey:    行键
-     * familyName:列簇
-     * columnName:列名
-     * value:        值
-     */
-    public boolean putData(String tableName, String rowKey, String familyName, String columnName, String value)
-            throws Exception {
-        try {
-            //转化为表名
-            TableName name = TableName.valueOf(tableName);
-            //添加数据之前先判断表是否存在，不存在的话先创建表
-            putData_Temp(familyName, name);
-
-            Table table = connection.getTable(name);
-            Put put = new Put(rowKey.getBytes());
-
-            put.addColumn(familyName.getBytes(), columnName.getBytes(), value.getBytes());
             table.put(put);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-
-    /**
-     * 添加数据包括（时间戳）
-     *
-     * @param tableName
-     * @param rowKey
-     * @param familyName
-     * @param columnName
-     * @param value
-     * @param timestamp
-     * @throws Exception
-     */
-    public void putData(String tableName, String rowKey, String familyName, String columnName, String value,
-                        long timestamp) throws Exception {
-
-        // 转化为表名
-        TableName name = TableName.valueOf(tableName);
-        // 添加数据之前先判断表是否存在，不存在的话先创建表
-        putData_Temp(familyName, name);
-
-        Table table = connection.getTable(name);
-        Put put = new Put(rowKey.getBytes());
-
-        //put.addColumn(familyName.getBytes(), columnName.getBytes(), value.getBytes());
-        put.addImmutable(familyName.getBytes(), columnName.getBytes(), timestamp, value.getBytes());
-        table.put(put);
-
-    }
-
-    /**
-     * 根据rowkey查询数据
-     *
-     * @param tableName
-     * @param rowKey
-     * @param familyName
-     * @return
-     * @throws Exception
-     */
-    public Result getResult(String tableName, String rowKey, String familyName) throws Exception {
-        Result result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Get get = new Get(rowKey.getBytes());
-            get.addFamily(familyName.getBytes());
-            result = table.get(get);
-
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
-    /**
-     * 根据rowkey查询数据
-     *
-     * @param tableName
-     * @param rowKey
-     * @param familyName
-     * @param columnName
-     * @return
-     * @throws Exception
-     */
-    public Result getResult(String tableName, String rowKey, String familyName, String columnName) throws Exception {
-
-        Result result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Get get = new Get(rowKey.getBytes());
-            get.addColumn(familyName.getBytes(), columnName.getBytes());
-            result = table.get(get);
-
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
-    /**
-     * 查询指定version
-     *
-     * @param tableName
-     * @param rowKey
-     * @param familyName
-     * @param columnName
-     * @param versions
-     * @return
-     * @throws Exception
-     */
-    public Result getResultByVersion(String tableName, String rowKey, String familyName, String columnName,
-                                     int versions) throws Exception {
-
-        Result result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Get get = new Get(rowKey.getBytes());
-            get.addColumn(familyName.getBytes(), columnName.getBytes());
-            get.setMaxVersions(versions);
-            result = table.get(get);
-
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
-    /**
-     * scan全表数据
-     *
-     * @param tableName
-     * @return
-     * @throws Exception
-     */
-    public ResultScanner getResultScann(String tableName) throws Exception {
-
-        ResultScanner result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Scan scan = new Scan();
-            result = table.getScanner(scan);
-
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
-    /**
-     * scan全表数据
-     *
-     * @param tableName
-     * @param scan
-     * @return
-     * @throws Exception
-     */
-    public ResultScanner getResultScann(String tableName, Scan scan) throws Exception {
-
-        ResultScanner result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            result = table.getScanner(scan);
-
-        } else {
-            result = null;
-        }
-
-        return result;
-    }
-
-    /**
-     * 删除数据（指定的lie
-     *
-     * @param tableName
-     * @param rowKey
-     * @throws Exception
-     */
-    public void deleteColumn(String tableName, String rowKey) throws Exception {
-
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Delete delete = new Delete(rowKey.getBytes());
-            table.delete(delete);
-
-        } else {
-            System.out.println("table不存在");
+            table.close();
         }
     }
 
     /**
-     * 删除数据（指定的lie）
+     * 按表名批量插入Put对象包含的数据
      *
-     * @param tableName
-     * @param rowKey
-     * @param falilyName
-     * @throws Exception
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param puts      要插入的数据对象集合
+     * @throws IOException 有异常抛出，由调用者捕获处理
      */
-    public void deleteColumn(String tableName, String rowKey, String falilyName) throws Exception {
+    public static void put(Connection connection, String tableName, List<Put> puts) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
 
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Delete delete = new Delete(rowKey.getBytes());
-            delete.addFamily(falilyName.getBytes());
-            table.delete(delete);
-
-        } else {
-            System.out.println("table不存在");
-        }
-    }
-
-    /**
-     * 删除数据（指定的行lie
-     *
-     * @param tableName
-     * @param rowKey
-     * @param falilyName
-     * @param columnName
-     * @throws Exception
-     */
-    public void deleteColumn(String tableName, String rowKey, String falilyName, String columnName) throws Exception {
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Delete delete = new Delete(rowKey.getBytes());
-            delete.addColumn(falilyName.getBytes(), columnName.getBytes());
-            table.delete(delete);
-
-        } else {
-            System.out.println("table不存在");
-        }
-    }
-
-    public static void close() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Result getResult(String tableName, String rowKey, FilterList filterList) throws IOException {
-        Result result;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Get get = new Get(rowKey.getBytes());
-            get.setFilter(filterList);
-            result = table.get(get);
-        } else {
-            result = null;
-        }
-        return result;
-    }
-
-    public ResultScanner getResult(String tableName, FilterList filterList) throws IOException {
-        ResultScanner resultScanner;
-        TableName name = TableName.valueOf(tableName);
-        if (admin.tableExists(name)) {
-            Table table = connection.getTable(name);
-            Scan scan = new Scan();
-            scan.setFilter(filterList);
-            resultScanner = table.getScanner(scan);
-        } else {
-            resultScanner = null;
-        }
-        return resultScanner;
-    }
-
-    public ResultScanner getScanner(String tableName) {
-        try {
-            TableName name = TableName.valueOf(tableName);
-            Table table = connection.getTable(name);
-            Scan scan = new Scan();
-            scan.setCaching(1000);
-            return table.getScanner(scan);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public boolean putDatas(String tableName, List<Put> puts) {
-        try {
-            //转化为表名
-            TableName name = TableName.valueOf(tableName);
-            Table table = connection.getTable(name);
             table.put(puts);
-        } catch (Exception e) {
-            e.printStackTrace();
+            table.close();
         }
-        return true;
     }
 
-    public ResultScanner getScanner(String tableName, String startRowkey, String endRowkey) {
-        try {
-            TableName name = TableName.valueOf(tableName);
-            Table table = connection.getTable(name);
-            Scan scan = new Scan();
-            scan.setStartRow(startRowkey.getBytes());
-            scan.setStopRow(endRowkey.getBytes());
-            scan.setCaching(1000);
-            return table.getScanner(scan);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    // =============== Get =====================================
+
+    /**
+     * 根据rowKey生成一个查询的Get对象
+     *
+     * @param rowKey rowKey
+     * @return Get 对象
+     */
+    public static Get createGet(String rowKey) {
+        return new Get(Bytes.toBytes(rowKey));
     }
 
-    public ResultScanner getScanner(String tableName, String startRowkey, String endRowkey, FilterList filterList) {
-        try {
-            TableName name = TableName.valueOf(tableName);
-            Table table = connection.getTable(name);
-            Scan scan = new Scan();
-            scan.setStartRow(startRowkey.getBytes());
-            scan.setStopRow(endRowkey.getBytes());
-            scan.setFilter(filterList);
-            scan.setCaching(1000);
-            return table.getScanner(scan);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    /**
+     * 对查询的Get对象增加指定列簇
+     *
+     * @param get
+     * @param family
+     */
+    public static void addFamilyOnGet(Get get, String family) {
+        get.addFamily(Bytes.toBytes(family));
     }
 
-    public boolean deleteColumnFamily(String tableName, String cfName) {
-        try {
-            admin.deleteColumn(TableName.valueOf(tableName), cfName.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
+    /**
+     * 对查询的Get对象增加指定列簇和列
+     *
+     * @param get
+     * @param family
+     * @param qualifier
+     */
+    public static void addColumnOnGet(Get get, String family, String qualifier) {
+        get.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
     }
 
-    public boolean deleteQualifier(String tableName, String rowkey, String cfName, String qualifier) {
-        try {
-            TableName name = TableName.valueOf(tableName);
-            Table table = connection.getTable(name);
-            Delete delete = new Delete(rowkey.getBytes());
-            delete.addColumn(cfName.getBytes(), qualifier.getBytes());
+    /**
+     * 根据表名和rowKey查询结果（包含全部列簇和列）
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param rowKey    查询rowKey
+     * @return 查询结果Result
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static Result get(Connection connection, String tableName, String rowKey) throws IOException {
+        Get get = createGet(rowKey);
+        return get(connection, tableName, get);
+    }
+
+    /**
+     * 根据表名和rowKey数组批量查询结果（包含全部列簇和列）
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param rowKeys   查询rowKey数组
+     * @return 查询结果Result数组
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static Result[] get(Connection connection, String tableName, String[] rowKeys) throws IOException {
+        List<Get> gets = new ArrayList<Get>();
+        for (String rowKey : rowKeys) {
+            gets.add(createGet(rowKey));
+        }
+        return get(connection, tableName, gets);
+    }
+
+    /**
+     * 根据表名和Get对象查询结果
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param get       Hbase查询对象
+     * @return 查询结果Result
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static Result get(Connection connection, String tableName, Get get) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
+            Result results = table.get(get);
+            table.close();
+            return results;
+        }
+    }
+
+    /**
+     * 根据表名和Get对象数组查询结果
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param gets      多个Hbase查询对象组成的数组
+     * @return 查询结果Result数组
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static Result[] get(Connection connection, String tableName, List<Get> gets) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
+            Result[] results = table.get(gets);
+            table.close();
+            return results;
+
+        }
+
+    }
+
+    // =============== Scan =====================================
+
+    /**
+     * 根据startRow和stopRow创建扫描对象
+     *
+     * @param startRow 扫描开始行，结果包含该行
+     * @param stopRow  扫描结束行，结果不包含该行
+     * @return Scan对象
+     */
+    public static Scan createScan(String startRow, String stopRow) {
+        Scan scan = new Scan();
+        scan.withStartRow(Bytes.toBytes(startRow));
+        scan.withStopRow(Bytes.toBytes(stopRow));
+        return scan;
+    }
+
+    /**
+     * 对扫描对象设置列簇
+     *
+     * @param scan   扫描对象
+     * @param family 列簇
+     */
+    public static void addFamilyOnScan(Scan scan, String family) {
+        scan.addFamily(Bytes.toBytes(family));
+    }
+
+    /**
+     * 对扫描对象设置列
+     *
+     * @param scan      扫描对象
+     * @param family    列簇
+     * @param qualifier 列簇下对应的列
+     */
+    public static void addColumnOnScan(Scan scan, String family, String qualifier) {
+        scan.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
+    }
+
+    /**
+     * 根据表名和扫描对象扫描数据
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param scan      扫描对象
+     * @return 扫描结果集对象ResultScanner
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static ResultScanner scan(Connection connection, String tableName, Scan scan) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
+            ResultScanner results = table.getScanner(scan);
+            table.close();
+            return results;
+//            return table.getScanner(scan);
+        }
+    }
+
+    /**
+     * 根据表名、开始行和结束行扫描数据（结果包含开始行，不包含结束行，半开半闭区间[startRow, stopRow)）
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param startRow  扫描开始行
+     * @param stopRow   扫描结束行
+     * @return 扫描结果集对象ResultScanner
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static ResultScanner scan(Connection connection, String tableName, String startRow, String stopRow) throws IOException {
+        return scan(connection, tableName, createScan(startRow, stopRow));
+    }
+
+    // =============== Delete =====================================
+
+    /**
+     * 根据rowKey生成一个查询的Delete对象
+     *
+     * @param rowKey rowKey
+     * @return Delete对象
+     */
+    public static Delete createDelete(String rowKey) {
+        return new Delete(Bytes.toBytes(rowKey));
+    }
+
+//    /**
+//     * 在Delete对象上增加Cell
+//     *
+//     * @param delete Delete对象
+//     * @param cell cell对象
+//     * @throws IOException 有异常抛出，由调用者捕获处理
+//     */
+//    public static void addCellOnDelete(Delete delete, Cell cell) throws IOException {
+//        delete.add(cell);
+//    }
+
+    /**
+     * 对删除对象增加指定列簇
+     *
+     * @param delete Delete对象
+     * @param family 列簇
+     */
+    public static void addFamilyOnDelete(Delete delete, String family) {
+        delete.addFamily(Bytes.toBytes(family));
+    }
+
+    /**
+     * 对删除对象增加指定列簇和列
+     *
+     * @param delete    Delete对象
+     * @param family    列簇
+     * @param qualifier 列
+     */
+    public static void addColumnOnDelete(Delete delete, String family, String qualifier) {
+        delete.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
+    }
+
+    /**
+     * 按表名删除一个Delete对象指定的数据
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param delete    Delete对象
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static void delete(Connection connection, String tableName, Delete delete) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
             table.delete(delete);
-        } catch (Exception e) {
-            e.printStackTrace();
+            table.close();
         }
-        return true;
     }
 
+    /**
+     * 按表名批量删除Delete对象集合包含的指定数据
+     *
+     * @param tableName 表名，必要时可指定命名空间，比如：“default:user”
+     * @param deletes   Delete对象集合
+     * @throws IOException 有异常抛出，由调用者捕获处理
+     */
+    public static void delete(Connection connection, String tableName, List<Delete> deletes) throws IOException {
+        try (
+                Table table = getTable(connection, tableName);
+        ) {
+            table.delete(deletes);
+            table.close();
+        }
+    }
 
 }

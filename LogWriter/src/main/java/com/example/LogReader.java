@@ -25,6 +25,7 @@ public class LogReader {
             logger.info(id + "\t" + line);
 //            logger.info(i);
             i++;
+            Thread.sleep(700);
         }
         br.close();
         fr.close();

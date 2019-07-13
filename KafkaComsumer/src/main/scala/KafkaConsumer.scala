@@ -1,4 +1,5 @@
 
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import org.apache.hadoop.hbase.HBaseConfiguration
 import org.apache.hadoop.hbase.client.{Connection, Put, Result}
 import org.apache.hadoop.hbase.util.Bytes
@@ -22,6 +23,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.kafka010.{ConsumerStrategies, KafkaUtils, LocationStrategies}
+import redis.clients.jedis.JedisPool
 
 
 object KafkaConsumer extends Serializable {
@@ -73,7 +75,6 @@ object KafkaConsumer extends Serializable {
     val sc = scc.sparkContext
     // set up HBase Table configuration
 
-
     scc.checkpoint("./Kafka_Receiver")
     var zkHost = "node22,node21,node23"
     val kafkaParams = Map[String, Object](
@@ -98,12 +99,73 @@ object KafkaConsumer extends Serializable {
       var values = x.split("\t")
       ("sum", values(3).toDouble)
     }).reduceByKey(_ + _)
+
+
     wordCounts.print()
     var offsetRanges: Array[OffsetRange] = Array.empty[OffsetRange]
     stream.foreachRDD(rdd => {
       val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd.foreachPartition(p => {
+        p.foreach(x => {
+          var values = x.value().split("\t")
 
+          /**
+            * Internal Redis client for managing Redis connection {@link Jedis} based on {@link RedisPool}
+            */
+          object InternalRedisClient extends Serializable {
+            @transient private var pool: JedisPool = null
+
+            def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
+                         maxTotal: Int, maxIdle: Int, minIdle: Int): Unit = {
+              makePool(redisHost, redisPort, redisTimeout, maxTotal, maxIdle, minIdle, true, false, 10000)
+            }
+
+            def makePool(redisHost: String, redisPort: Int, redisTimeout: Int,
+                         maxTotal: Int, maxIdle: Int, minIdle: Int, testOnBorrow: Boolean,
+                         testOnReturn: Boolean, maxWaitMillis: Long): Unit = {
+              if (pool == null) {
+                val poolConfig = new GenericObjectPoolConfig()
+                poolConfig.setMaxTotal(maxTotal)
+                poolConfig.setMaxIdle(maxIdle)
+                poolConfig.setMinIdle(minIdle)
+                poolConfig.setTestOnBorrow(testOnBorrow)
+                poolConfig.setTestOnReturn(testOnReturn)
+                poolConfig.setMaxWaitMillis(maxWaitMillis)
+                pool = new JedisPool(poolConfig, redisHost, redisPort, redisTimeout)
+
+                val hook = new Thread {
+                  override def run = pool.destroy()
+                }
+                sys.addShutdownHook(hook.run)
+              }
+            }
+
+            def getPool: JedisPool = {
+              assert(pool != null)
+              pool
+            }
+          }
+          // Redis configurations
+          val maxTotal = 10
+          val maxIdle = 10
+          val minIdle = 1
+          val redisHost = "nodemysql"
+          val redisPort = 6379
+          val redisTimeout = 30000
+          val dbIndex = 1
+          val clickHashKey = "movielens::udata::rating::total"
+          val sumfield = "sum"
+
+          InternalRedisClient.makePool(redisHost, redisPort, redisTimeout, maxTotal, maxIdle, minIdle)
+
+          val jedis = InternalRedisClient.getPool.getResource
+          jedis.select(dbIndex)
+
+          //原子操作--Redis HINCRBY命令用于增加存储在字段中存储由增量键哈希的数量。
+          //如果键不存在,新的key被哈希创建。如果字段不存在,值被设置为0之前进行操作。
+          jedis.hincrBy(clickHashKey, sumfield, values(3).toLong)
+          InternalRedisClient.getPool.returnResource(jedis)
+        })
       })
       stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
     })

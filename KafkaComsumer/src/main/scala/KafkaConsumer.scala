@@ -100,11 +100,12 @@ object KafkaConsumer extends Serializable {
     }).reduceByKey(_ + _)
     wordCounts.print()
     var offsetRanges: Array[OffsetRange] = Array.empty[OffsetRange]
-    lines.foreachRDD(rdd => {
+    stream.foreachRDD(rdd => {
       val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd.foreachPartition(p => {
+
       })
-      lines.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
+      stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRangers)
     })
 
     //    val kafkaData: DStream[String] = stream.map(_.value())

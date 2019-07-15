@@ -19,13 +19,13 @@ public class LogReader {
         BufferedReader br = new BufferedReader(fr);
         String line = "";
         int i = 0;
-        while ((line = br.readLine()) != null && i < 20) {
+        while ((line = br.readLine()) != null) {
             long id = snowFlake.nextId();
 //            System.out.println(id + "\t" + line);
             logger.info(id + "\t" + line);
 //            logger.info(i);
             i++;
-            Thread.sleep(700);
+            Thread.sleep(100);
         }
         br.close();
         fr.close();

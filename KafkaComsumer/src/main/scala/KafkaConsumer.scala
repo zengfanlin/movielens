@@ -106,6 +106,13 @@ object KafkaConsumer extends Serializable {
     stream.foreachRDD(rdd => {
       val offsetRangers = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
       rdd.foreachPartition(p => {
+
+        val lines =p.map(precode=>{
+
+        })
+        val wordCounts = lines
+
+
         p.foreach(x => {
           var values = x.value().split("\t")
 

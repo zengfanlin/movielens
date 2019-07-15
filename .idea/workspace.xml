@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="683a0e55-777a-4e4e-ad61-b7b03df1fee7" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/resources/core-site.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/resources/hdfs-site.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/resources/hive-site.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumerTest.scala" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KafkaComsumer/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/KafkaComsumer/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" beforeDir="false" afterPath="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" beforeDir="false" afterPath="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -35,37 +40,23 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="375">
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala">
+        <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="76">
-              <caret line="102" column="4" lean-forward="true" selection-start-line="102" selection-start-column="4" selection-end-line="102" selection-end-column="4" />
+            <state relative-caret-position="393">
+              <caret line="21" column="4" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
               <folding>
-                <element signature="e#1#61#0" expanded="true" />
+                <element signature="e#0#33#0" expanded="true" />
+                <element signature="e#362#386#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
+        <entry file="file://$PROJECT_DIR$/KafkaComsumer/pom.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="315">
-              <caret line="30" column="19" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/jedisTest.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="266">
-              <caret line="14" column="54" selection-start-line="14" selection-start-column="45" selection-end-line="14" selection-end-column="54" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="382">
+              <caret line="68" column="47" lean-forward="true" selection-start-line="68" selection-start-column="47" selection-end-line="68" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -113,12 +104,14 @@
         <option value="$PROJECT_DIR$/KafkaComsumer/src/main/resources/hbase_login_initial.properties" />
         <option value="$PROJECT_DIR$/KafkaComsumer/src/main/scala/HBaseUtils1x.scala" />
         <option value="$PROJECT_DIR$/KafkaComsumer/src/main/java/HbaseUtils.java" />
-        <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" />
         <option value="$PROJECT_DIR$/LogWriter/pom.xml" />
         <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/jedisTest.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/KafkaComsumer/pom.xml" />
         <option value="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala" />
+        <option value="$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumerTest.scala" />
+        <option value="$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java" />
+        <option value="$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala" />
+        <option value="$PROJECT_DIR$/KafkaComsumer/pom.xml" />
       </list>
     </option>
   </component>
@@ -166,8 +159,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -178,56 +169,50 @@
             <path>
               <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
               <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
+              <item name="KafkaComsumer" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
               <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
+              <item name="KafkaComsumer" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
               <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="main" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
-              <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
+              <item name="KafkaComsumer" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
               <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
+              <item name="KafkaComsumer" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="main" type="462c0819:PsiDirectoryNode" />
-              <item name="java" type="462c0819:PsiDirectoryNode" />
-              <item name="example" type="462c0819:PsiDirectoryNode" />
+              <item name="resources" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="movielens" type="b2602c69:ProjectViewProjectNode" />
               <item name="movielens" type="462c0819:PsiDirectoryNode" />
-              <item name="LogWriter" type="462c0819:PsiDirectoryNode" />
+              <item name="KafkaComsumer" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="test" type="462c0819:PsiDirectoryNode" />
+              <item name="main" type="462c0819:PsiDirectoryNode" />
+              <item name="scala" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/KafkaComsumer/src/main/java" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/KafkaComsumer/src/main/resources" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -237,7 +222,11 @@
     <property name="settings.editor.selected.configurable" value="preferences.editor" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\00-workspace\05-bigdataprj\movielens\KafkaComsumer\src\main\resources" />
       <recent name="D:\00-workspace\05-bigdataprj\movielens\KafkaComsumer\src\main\java" />
       <recent name="D:\00-workspace\05-bigdataprj\movielens\LogProducter\src\main\resources" />
     </key>
@@ -254,16 +243,16 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.KafkaConsumer">
-    <configuration name="HbaseUtils" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="HbaseUtils" />
+  <component name="RunManager" selected="Application.batchSql">
+    <configuration name="KafkaConsumer" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="KafkaConsumer" />
       <module name="KafkaComsumer" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="KafkaConsumer" type="Application" factoryName="Application" temporary="true">
-      <option name="MAIN_CLASS_NAME" value="KafkaConsumer" />
+    <configuration name="KafkaConsumerTest" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="KafkaConsumerTest" />
       <module name="KafkaComsumer" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -282,15 +271,9 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SnowFlake" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="com.example.SnowFlake" />
-      <module name="LogWriter" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.example.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
+    <configuration name="batchSql" type="Application" factoryName="Application" temporary="true">
+      <option name="MAIN_CLASS_NAME" value="batchSql" />
+      <module name="KafkaComsumer" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -317,11 +300,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.batchSql" />
         <item itemvalue="Application.LogReader" />
+        <item itemvalue="Application.KafkaConsumerTest" />
         <item itemvalue="Application.KafkaConsumer" />
         <item itemvalue="Application.jedisTest" />
-        <item itemvalue="Application.HbaseUtils" />
-        <item itemvalue="Application.SnowFlake" />
       </list>
     </recent_temporary>
   </component>
@@ -349,7 +332,9 @@
       <workItem from="1562417187740" duration="7712000" />
       <workItem from="1562507006698" duration="5284000" />
       <workItem from="1562772177203" duration="2286000" />
-      <workItem from="1562994077214" duration="5139000" />
+      <workItem from="1562994077214" duration="10231000" />
+      <workItem from="1563107403762" duration="3984000" />
+      <workItem from="1563191698686" duration="3505000" />
     </task>
     <task id="LOCAL-00001" summary="测试成功，但是日志还有乱码">
       <created>1561468949775</created>
@@ -400,17 +385,24 @@
       <option name="project" value="LOCAL" />
       <updated>1563006258505</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="redis实现累加操作">
+      <created>1563029704631</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1563029704632</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="156866000" />
+    <option name="totallyTimeSpent" value="169447000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-9" y="-9" width="1938" height="1064" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.21512875" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.22156653" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Favorites" order="3" side_tool="true" />
@@ -418,7 +410,7 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49946353" weight="0.31666666" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.26222223" />
+      <window_info anchor="bottom" id="Debug" order="3" visible="true" weight="0.37111112" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -460,7 +452,8 @@
     <MESSAGE value="解决hbase连接关闭的问题，暂时没问题" />
     <MESSAGE value="窗口统计" />
     <MESSAGE value="窗口统计、手动提交" />
-    <option name="LAST_COMMIT_MESSAGE" value="窗口统计、手动提交" />
+    <MESSAGE value="redis实现累加操作" />
+    <option name="LAST_COMMIT_MESSAGE" value="redis实现累加操作" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -470,6 +463,18 @@
           <line>84</line>
           <properties />
           <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala</url>
+          <line>8</line>
+          <properties />
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="scala-line">
+          <url>file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala</url>
+          <line>21</line>
+          <properties />
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/jedisTest.java</url>
@@ -481,30 +486,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/spark/spark-streaming_2.11/2.1.1/spark-streaming_2.11-2.1.1-sources.jar!/org/apache/spark/streaming/Duration.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-494">
-          <caret line="21" column="11" selection-start-line="21" selection-start-column="11" selection-end-line="21" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/spark/spark-streaming_2.11/2.1.1/spark-streaming_2.11-2.1.1-sources.jar!/org/apache/spark/streaming/dstream/DStream.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="544" column="6" selection-start-line="544" selection-start-column="6" selection-end-line="544" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/spark/spark-streaming-kafka-0-10_2.11/2.4.1/spark-streaming-kafka-0-10_2.11-2.4.1.jar!/org/apache/spark/streaming/kafka010/KafkaUtils.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="38">
-          <caret line="2" column="7" selection-start-line="2" selection-start-column="7" selection-end-line="2" selection-end-column="7" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/spark/spark-streaming-kafka-0-10_2.11/2.4.1/spark-streaming-kafka-0-10_2.11-2.4.1-sources.jar!/org/apache/spark/streaming/kafka010/KafkaUtils.scala">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/apache/spark/spark-streaming-kafka-0-10_2.11/2.4.3/spark-streaming-kafka-0-10_2.11-2.4.3.jar!/org/apache/spark/streaming/kafka010/KafkaUtils.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="152">
@@ -745,13 +726,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8-sources.jar!/scala/collection/TraversableOnce.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="405">
-          <caret line="194" column="17" selection-start-line="194" selection-start-column="6" selection-end-line="194" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/apache/kafka/kafka-clients/2.2.0/kafka-clients-2.2.0.jar!/org/apache/kafka/clients/consumer/ConsumerRecord.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
@@ -766,23 +740,6 @@
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="30" column="19" selection-start-line="30" selection-start-column="19" selection-end-line="30" selection-end-column="19" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/KafkaComsumer/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="784">
-          <caret line="64" column="21" selection-start-line="64" selection-start-column="21" selection-end-line="64" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -810,12 +767,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala">
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.11.8/scala-library-2.11.8-sources.jar!/scala/collection/TraversableOnce.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="76">
-          <caret line="102" column="4" lean-forward="true" selection-start-line="102" selection-start-column="4" selection-end-line="102" selection-end-column="4" />
+        <state relative-caret-position="745">
+          <caret line="207" column="6" selection-start-line="207" selection-start-column="6" selection-end-line="207" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/LogWriter/src/main/java/com/example/LogReader.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="551">
+          <caret line="29" column="19" selection-start-line="29" selection-start-column="19" selection-end-line="29" selection-end-column="19" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumerTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="404">
+          <caret line="28" column="41" selection-start-line="28" selection-start-column="41" selection-end-line="28" selection-end-column="41" />
           <folding>
             <element signature="e#1#61#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/KafkaConsumer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="111" column="10" lean-forward="true" selection-start-line="111" selection-start-column="10" selection-end-line="111" selection-end-column="10" />
+          <folding>
+            <element signature="e#1#61#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/resources/hive-site.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-196" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/resources/core-site.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="15" lean-forward="true" selection-start-line="15" selection-end-line="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="68" column="47" lean-forward="true" selection-start-line="68" selection-start-column="47" selection-end-line="68" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/KafkaComsumer/src/main/scala/batchSql.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="393">
+          <caret line="21" column="4" selection-start-line="21" selection-start-column="4" selection-end-line="21" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#33#0" expanded="true" />
+            <element signature="e#362#386#0" expanded="true" />
           </folding>
         </state>
       </provider>

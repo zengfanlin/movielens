@@ -3,7 +3,7 @@ import org.apache.spark.sql.SparkSession
 
 object batchSql {
   def main(args: Array[String]): Unit = {
-
+    Streaminglogs.setStreamingLogLevels()
     val spark = SparkSession
       .builder()
       .appName("Spark Hive Example")
@@ -20,6 +20,8 @@ object batchSql {
 //    df.createOrReplaceTempView("temp_src")
 //    sql("insert into src select key,value from temp_src")
     sql("use movielensdb")
-    sql("SELECT count(*) FROM udata").show()
+    sql("SELECT  avg(rating) FROM udata ").show()
+
+    spark.close()
   }
 }

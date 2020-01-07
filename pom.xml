@@ -14,8 +14,8 @@
     <packaging>pom</packaging>
     <!-- 声明子项目公用的配置属性 -->
     <properties>
-        <spark.version>2.1.1</spark.version>
-        <scala.version>2.11.8</scala.version>
+        <spark.version>2.4.3</spark.version>
+        <scala.version>2.12.8</scala.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.22</slf4j.version>
         <mysql.version>6.0.5</mysql.version>
@@ -58,31 +58,31 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-core_2.11</artifactId>
+                <artifactId>spark-core_2.12</artifactId>
                 <version>${spark.version}</version>
                 <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-graphx_2.11</artifactId>
+                <artifactId>spark-graphx_2.12</artifactId>
                 <version>${spark.version}</version>
                 <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-mllib_2.11</artifactId>
+                <artifactId>spark-mllib_2.12</artifactId>
                 <version>${spark.version}</version>
                 <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-sql_2.11</artifactId>
+                <artifactId>spark-sql_2.12</artifactId>
                 <version>${spark.version}</version>
                 <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.apache.spark</groupId>
-                <artifactId>spark-streaming_2.11</artifactId>
+                <artifactId>spark-streaming_2.12</artifactId>
                 <version>${spark.version}</version>
                 <!--<scope>provided</scope>-->
             </dependency>
